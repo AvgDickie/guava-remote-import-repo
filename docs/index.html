@@ -108,7 +108,7 @@
             const data = await res.json();
 
             details.innerHTML = `
-              <strong>Title:</strong> ${data.title}<br>
+              <h1>${data.title}</h1>
               <strong>Description:</strong><br>${data.description}<br>
               <strong>Use:</strong><pre>${data.use}</pre>
               <strong>GuavaDocs URL:</strong> <a class="link" href="${data.guavadocsUrl}" target="_blank">${data.guavadocsUrl}</a><br>
