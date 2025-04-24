@@ -1,7 +1,11 @@
 {
   "type": "module",
-  "dependencies": {
+  "scripts": {
+    "docsJeni": "node ./docsJeni.js",
+    "bundle": "rollup -c",
+    "build": "npm run docsJeni && npm run bundle"
   },
+  "dependencies": {},
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/google-apps-script": "^1.0.97",

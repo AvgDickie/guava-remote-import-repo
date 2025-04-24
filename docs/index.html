@@ -1,9 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>GUAVA Remote Import Repository</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GuavaDocs Imports</title>
+  <style>
+    :root {
+      --guava-green: #7ed957;
+      --guava-pink: #ff6b81;
+      --guava-yellow: #fefcbf;
+      --guava-purple: #2e003e;
+      --text-light: #f5f5f5;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: var(--guava-purple);
+      color: var(--text-light);
+      padding: 2rem;
+    }
+
+    header {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: var(--guava-pink);
+    }
+
+    .description {
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      border-left: 5px solid var(--guava-green);
+      margin-bottom: 2rem;
+    }
+
+    .import-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .import-item {
+      background: rgba(255, 255, 255, 0.05);
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-left: 3px solid var(--guava-yellow);
+      cursor: pointer;
+    }
+
+    .details {
+      display: none;
+      margin-top: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      white-space: pre-wrap;
+    }
+
+    .code-block {
+      max-height: 200px;
+      overflow-y: auto;
+      background: #1a1a1a;
+      color: #00ff91;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-family: monospace;
+    }
+
+    .link {
+      color: var(--guava-pink);
+    }
+
+    .more-link {
+      color: var(--guava-green);
+      cursor: pointer;
+      display: block;
+      margin-top: 0.5rem;
+    }
+  </style>
 </head>
 <body>
-  <h1>🥓</h1>
-</body>  
+  <header>GuavaDocs Remote Imports</header>
+  <div class="description">
+    This page lists all available remote JSON imports in the GuavaDocs system. Click an entry to expand and view metadata, usage details, and code.
+  </div>
+  <ul class="import-list" id="import-list">
+    <!-- Filled in by script -->
+  </ul>
+
+  <script>
+    async function loadImports() {
+      const response = await fetch('./imports/index.json');
+      const importNames = await response.json();
+      const list = document.getElementById('import-list');
+
+      for (const name of importNames) {
+        const li = document.createElement('li');
+        li.className = 'import-item';
+        li.textContent = name;
+
+        const details = document.createElement('div');
+        details.className = 'details';
+        li.appendChild(details);
+
+        li.addEventListener('click', async () => {
+          if (details.innerHTML === '') {
+            const file = `./imports/${name}.json`;
+            const res = await fetch(file);
+            const data = await res.json();
+
+            details.innerHTML = `
+              <strong>Title:</strong> ${data.title}<br>
+              <strong>Description:</strong><br>${data.description}<br>
+              <strong>Use:</strong><pre>${data.use}</pre>
+              <strong>GuavaDocs URL:</strong> <a class="link" href="${data.guavadocsUrl}" target="_blank">${data.guavadocsUrl}</a><br>
+              <strong>Library:</strong> ${data.libraryName} v${data.libraryVersion}<br>
+              <a class="link" href="${data.libraryRepoUrl}" target="_blank">Library Repo</a><br>
+              <strong>Code Signature:</strong><pre>${Object.entries(data.codeSignature).map(([k, v]) => `${k}: ${v}`).join('\n')}</pre>
+              <strong>Tags:</strong> ${data.tags.join(', ')}<br>
+              <strong>Eval Type:</strong> ${data.evalType}<br>
+              <strong>Global:</strong> ${data.global}<br>
+              <strong>Authors:</strong> ${data.author.join(', ')}<br>
+              <strong>Copyright:</strong><br>${data.copyright.join('<br>')}<br>
+              <strong>License:</strong> ${data.licenseName} (<a class="link" href="${data.licenseUrl}" target="_blank">link</a>)<br>
+              <details class="code-block"><summary>Show Code</summary>${data.code}</details>
+            `;
+          }
+          details.style.display = details.style.display === 'none' ? 'block' : 'none';
+        });
+
+        list.appendChild(li);
+      }
+    }
+
+    loadImports();
+  </script>
+</body>
 </html>
