@@ -2,183 +2,129 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GuavaDocs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guava Imports</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --guava-green: #7dc16b;
+      --guava-pink: #f48fb1;
+      --guava-yellow: #fff59d;
+      --guava-purple: #2e1a47;
+      --guava-white: #fdfdfd;
+      --font-main: 'Inter', sans-serif;
+    }
     body {
-      background-color: #1d0e22;
-      color: #f5f3b9;
-      font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
+      font-family: var(--font-main);
+      background-color: var(--guava-purple);
+      color: var(--guava-white);
     }
-
     header {
-      background: #86c232;
-      color: #1d0e22;
+      background-color: var(--guava-green);
+      color: var(--guava-purple);
       padding: 1rem 2rem;
-      font-size: 2rem;
-      font-weight: bold;
+      font-size: 1.5rem;
+      font-weight: 600;
     }
-
-    .content {
-      padding: 2rem;
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
     }
-
     .description {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-left: 4px solid var(--guava-yellow);
+      padding: 1rem;
       margin-bottom: 2rem;
-      font-size: 1.1rem;
-      line-height: 1.5;
-      color: #f5f3b9;
     }
-
-    .import-entry {
-      background: #29142e;
+    .import-list-item {
+      background-color: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--guava-green);
+      border-radius: 0.5rem;
       margin-bottom: 1rem;
-      border: 1px solid #ff6f91;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .entry-header {
       padding: 1rem;
-      background: #3d1e45;
       cursor: pointer;
-      font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      transition: all 0.2s ease-in-out;
     }
-
-    .entry-header:hover {
-      background: #512356;
+    .import-list-item:hover {
+      background-color: rgba(255, 255, 255, 0.15);
     }
-
-    .entry-body {
+    .import-details {
       display: none;
-      padding: 1rem;
-      border-top: 1px solid #ff6f91;
+      margin-top: 1rem;
+      padding-left: 1rem;
+      border-left: 2px solid var(--guava-pink);
     }
-
-    .entry-body pre {
-      white-space: pre-wrap;
-      background: #121212;
+    .code-block {
+      background-color: #1c0d2a;
       padding: 1rem;
-      border-radius: 6px;
-      color: #f5f3b9;
+      font-family: monospace;
+      font-size: 0.9rem;
       overflow-x: auto;
       max-height: 200px;
+      position: relative;
     }
-
-    .show-more {
-      display: inline-block;
-      color: #ff6f91;
+    .more-link {
+      color: var(--guava-yellow);
       cursor: pointer;
+      display: block;
       margin-top: 0.5rem;
     }
-
     a {
-      color: #86c232;
-    }
-
-    code {
-      font-family: monospace;
-      background: #2a2a2a;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-    }
-
-    .tag {
-      background: #86c232;
-      color: #1d0e22;
-      padding: 0.2rem 0.5rem;
-      margin-right: 0.4rem;
-      border-radius: 4px;
-      font-size: 0.85rem;
-      display: inline-block;
+      color: var(--guava-pink);
     }
   </style>
 </head>
 <body>
-  <header>GuavaDocs</header>
-  <div class="content">
+  <header>🍈 Guava Import Viewer</header>
+  <div class="container">
     <div class="description">
-      A collection of remote-importable libraries with usage guides and cryptographic hashes. Click on a module below to expand.
+      View and browse all available remote imports. Click an entry to expand its metadata and code block.
     </div>
-    <div id="imports"></div>
+    <div id="importList">
+      <!-- Populated by JavaScript -->
+    </div>
   </div>
-
   <script>
-    async function fetchIndex() {
-      const index = await fetch('./imports/index.json').then(res => res.json());
-      return index;
-    }
+    async function loadImports() {
+      const response = await fetch('./imports/index.json');
+      const imports = await response.json();
+      const listContainer = document.getElementById('importList');
 
-    async function fetchImport(name) {
-      const data = await fetch(`./imports/${name}.json`).then(res => res.json());
-      return data;
-    }
+      for (const item of imports) {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'import-list-item';
+        itemEl.innerHTML = `<strong>${item.importName}</strong> - ${item.title}`;
 
-    function createEntry(name, data) {
-      const entry = document.createElement('div');
-      entry.className = 'import-entry';
+        const details = document.createElement('div');
+        details.className = 'import-details';
+        details.innerHTML = `
+          <div><strong>Description:</strong> ${item.description}</div>
+          <div><strong>Use:</strong><pre>${item.use}</pre></div>
+          <div><strong>URL:</strong> <a href="${item.guavadocsUrl}" target="_blank">Open</a></div>
+          <div><strong>Library:</strong> ${item.libraryName} v${item.libraryVersion}</div>
+          <div><strong>Repo:</strong> <a href="${item.libraryRepoUrl}" target="_blank">Source</a></div>
+          <div><strong>Eval Type:</strong> ${item.evalType} | <strong>Global:</strong> ${item.global}</div>
+          <div><strong>Tags:</strong> ${item.tags.join(', ')}</div>
+          <div><strong>Author:</strong> ${item.author.join(', ')}</div>
+          <div><strong>Copyright:</strong> ${item.copyright.join('; ')}</div>
+          <div><strong>License:</strong> <a href="${item.licenseUrl}" target="_blank">${item.licenseName}</a></div>
+          <pre>${item.license}</pre>
+          <div class="code-block" id="code-${item.importName}">${item.code.substring(0, 300)}...</div>
+          <span class="more-link" onclick="document.getElementById('code-${item.importName}').textContent = \`${item.code}\`">Show Full Code</span>
+        `;
 
-      const header = document.createElement('div');
-      header.className = 'entry-header';
-      header.textContent = data.importName || name;
+        itemEl.addEventListener('click', () => {
+          details.style.display = details.style.display === 'none' ? 'block' : 'none';
+        });
 
-      const body = document.createElement('div');
-      body.className = 'entry-body';
-
-      const tagList = data.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-
-      const info = `
-        <h3>${data.title}</h3>
-        <p><strong>Description:</strong> ${data.description}</p>
-        <p><strong>Use:</strong><br/><code>${data.use.replace(/\n/g, '<br/>')}</code></p>
-        <p><strong>Library:</strong> <a href="${data.libraryRepoUrl}" target="_blank">${data.libraryName}</a> (v${data.libraryVersion})</p>
-        <p><strong>GuavaDocs:</strong> <a href="${data.guavaDocsUrl}" target="_blank">${data.guavaDocsUrl}</a></p>
-        <p><strong>Signatures:</strong><br/>
-          MD5: ${data.codeSignature['MD5']}<br/>
-          SHA-1: ${data.codeSignature['SHA-1']}<br/>
-          SHA-256: ${data.codeSignature['SHA-256']}<br/>
-          SHA-384: ${data.codeSignature['SHA-384']}<br/>
-          SHA-512: ${data.codeSignature['SHA-512']}
-        </p>
-        <p><strong>Eval Type:</strong> ${data.evalType}</p>
-        <p><strong>Global:</strong> ${data.global}</p>
-        <p><strong>Authors:</strong> ${data.author.join(', ')}</p>
-        <p><strong>Copyright:</strong><br/> ${data.copyright.join('<br/>')}</p>
-        <p><strong>License:</strong><br/> <a href="${data.licenseUrl}" target="_blank">${data.licenseName}</a><br/>${data.license.replace(/\n/g, '<br/>')}</p>
-        <p><strong>Tags:</strong> ${tagList}</p>
-        <p><strong>Code:</strong></p>
-        <pre>${data.code.slice(0, 500)}</pre>
-        ${data.code.length > 500 ? `<span class="show-more" onclick="this.previousElementSibling.textContent = \`${data.code.replace(/`/g, '\\`')}\`; this.remove()">Show full code</span>` : ''}
-      `;
-
-      body.innerHTML = info;
-
-      header.onclick = () => {
-        body.style.display = body.style.display === 'block' ? 'none' : 'block';
-      };
-
-      entry.appendChild(header);
-      entry.appendChild(body);
-      return entry;
-    }
-
-    async function renderImports() {
-      const imports = await fetchIndex();
-      const container = document.getElementById('imports');
-
-      for (const name of imports) {
-        const data = await fetchImport(name);
-        const entry = createEntry(name, data);
-        container.appendChild(entry);
+        itemEl.appendChild(details);
+        listContainer.appendChild(itemEl);
       }
     }
-
-    renderImports();
+    loadImports();
   </script>
 </body>
 </html>
