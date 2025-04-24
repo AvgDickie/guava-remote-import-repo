@@ -1,0 +1,10 @@
+{
+  "type": "module",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/google-apps-script": "^1.0.97",
+    "@rollup/plugin-terser": "^0.4.4"
+  }
+}
